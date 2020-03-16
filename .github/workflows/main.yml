@@ -54,7 +54,7 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
       - name: Bundle install
         run: |
-          bundle config path vendor/bundle
+          gem install bundler:2.1.4
           bundle install --jobs 4 --retry 3
       - name: Yarn install
         run: yarn --frozen-lockfile
