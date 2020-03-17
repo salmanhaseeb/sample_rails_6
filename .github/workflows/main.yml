@@ -9,7 +9,7 @@ jobs:
     # Similar to docker-compose.yml but not the same, 🤷‍♂️
     services:
       postgres:
-        image: postgres:11
+        image: postgres:11.6-alpine
         ports: ['5432:5432']
         # needed because the postgres container does not provide a healthcheck
         options: >-
@@ -63,6 +63,6 @@ jobs:
           REDIS_URL: redis://localhost:6379/0
           RAILS_ENV: test
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
-        run: |
-          bundle exec rake db:drop db:create db:schema:load
-          bundle exec rake db:migrate db:seed
+          run: |
+            bundle exec rake db:drop db:create db:schema:load
+            bundle exec rake db:migrate db:seed
