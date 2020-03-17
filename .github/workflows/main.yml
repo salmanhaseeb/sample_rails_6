@@ -10,8 +10,7 @@ jobs:
     services:
       postgres:
         image: postgres:11.6-alpine
-        ports:
-          - 5432:5432
+        ports: ['5432:5432']
         # needed because the postgres container does not provide a healthcheck
         options: >-
           --health-cmd pg_isready
@@ -28,7 +27,7 @@ jobs:
       - name: Setup Ruby
         uses: actions/setup-ruby@v1
         with:
-          ruby-version: 2.6.x
+          ruby-version: 2.7.x
       - name: Install required apt packages
         run: |
           sudo apt-get -y install libpq-dev
@@ -54,13 +53,16 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
       - name: Bundle install
         run: |
-          bundle config path vendor/bundle
+          gem install bundler:2.1.4
           bundle install --jobs 4 --retry 3
       - name: Yarn install
         run: yarn --frozen-lockfile
       - name: Rails test
         env: # Or as an environment variable
+          DATABASE_URL: postgres://postgres:@localhost:5432/test
+          REDIS_URL: redis://localhost:6379/0
+          RAILS_ENV: test
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
         run: |
-          bundle exec rails db:setup
-          bundle exec rails test
+          bundle exec rake db:drop db:create db:schema:load
+          bundle exec rake db:migrate db:seed
